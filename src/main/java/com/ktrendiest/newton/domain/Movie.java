@@ -1,20 +1,20 @@
 package com.ktrendiest.newton.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class Movie {
-    String rank;
-    String name;
-    String imageUrl;
-    String connectUrl;
+    private final String rank;
+    private final String name;
+    private final String imageLink;
+    private final String infoLink;
 
-    public Movie(String rank, String name) {
+    public Movie(String rank, String name, String imageLink, String infoLink) {
         this.rank = rank;
         this.name = name;
+        this.imageLink = imageLink;
+        this.infoLink = infoLink;
     }
 }
