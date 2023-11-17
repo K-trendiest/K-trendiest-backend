@@ -1,8 +1,10 @@
 package com.ktrendiest.newton.domain;
 
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class Music {
     private final String rank;
     private final String title;
