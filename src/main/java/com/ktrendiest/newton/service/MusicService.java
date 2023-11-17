@@ -16,11 +16,15 @@ public class MusicService {
         Document document = getDocument(url);
 
         List<String> titles = extractTextFromHtml(document, ".wrap_song_info .rank01 span a");
-        List<String> artistNames = extractTextFromHtml(document, ".wrap_song_info .rank02 a");
+        List<String> artistNames = extractTextFromHtml(document, ".service_list_song .wrap_song_info .rank02 span a");
         List<String> imageLinks = extractAttrFromHtml(document, ".image_typeAll img", "src");
         List<String> resizeImageLinks = resizeImageLinks(imageLinks);
         List<String> songIds = extractAttrFromHtml(document, ".d_song_list tbody tr","data-song-no");
         List<String> infoLinks = getInfoLinksOfSongIds(songIds);
+
+        for (String artistName : artistNames) {
+            System.out.println(artistName);
+        }
 
         return createMusicList(titles, artistNames, resizeImageLinks, infoLinks);
     }
