@@ -13,14 +13,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktrendiest.newton.domain.Movie;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
 @Service
 public class MovieService {
     @Value("${kofic-key}")
     private String koficKey;
     @Value("${kmdb-key}")
     private String kmdbKey;
-    private final List<String> names;
+    private final List<String> titles;
     private final List<String> ranks;
     private final List<String> openDates;
     private final List<String> imageLinks;
@@ -28,7 +27,7 @@ public class MovieService {
     private final WebClient webClient;
 
     public MovieService() {
-        names = new ArrayList<>();
+        titles = new ArrayList<>();
         ranks = new ArrayList<>();
         openDates = new ArrayList<>();
         imageLinks = new ArrayList<>();
@@ -36,7 +35,7 @@ public class MovieService {
         webClient = WebClient.create();
     }
 
-    public List<Movie> getMovieInfo() {
+    public List<Movie> getMovieInfos() {
         String jsonData1 = getDataFromKoficApi();
         addRankAndName(jsonData1);
         fetchDataFromKmdbApi();
@@ -47,10 +46,8 @@ public class MovieService {
         List<Movie> movies = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            movies.add(new Movie(ranks.get(i), names.get(i), imageLinks.get(i), kmdbUrls.get(i)));
+            movies.add(new Movie(ranks.get(i), titles.get(i), imageLinks.get(i), kmdbUrls.get(i)));
         }
-
-        System.out.println(movies.get(0).getImageLink());
 
         return movies;
     }
@@ -89,7 +86,7 @@ public class MovieService {
 
             for (JsonNode dailyBoxOffice : jsonNode.path("boxOfficeResult").path("dailyBoxOfficeList")) {
                 ranks.add(dailyBoxOffice.path("rank").asText());
-                names.add(dailyBoxOffice.path("movieNm").asText());
+                titles.add(dailyBoxOffice.path("movieNm").asText());
                 LocalDate openDt = LocalDate.parse(dailyBoxOffice
                         .path("openDt")
                         .asText());
@@ -127,7 +124,7 @@ public class MovieService {
     private String getKmdbDynamicUrl(String baseUrl, int num) {
         return UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("ServiceKey", kmdbKey)
-                .queryParam("title", names.get(num))
+                .queryParam("title", titles.get(num))
                 .queryParam("releaseDts", openDates.get(num))
                 .build()
                 .toUriString();

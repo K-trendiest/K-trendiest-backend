@@ -1,20 +1,13 @@
 package com.ktrendiest.newton.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-
 @Getter
-@Setter
+@AllArgsConstructor
 public class Movie {
     private final String rank;
-    private final String name;
+    private final String title;
     private final String imageLink;
     private final String infoLink;
-
-    public Movie(String rank, String name, String imageLink, String infoLink) {
-        this.rank = rank;
-        this.name = name;
-        this.imageLink = imageLink;
-        this.infoLink = infoLink;
-    }
 }
