@@ -39,19 +39,19 @@ public class MusicService {
     private List<String> extractTextFromHtml(Document doc, String selector) {
         return doc.select(selector).stream()
                 .map(Element::text)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<String> extractAttrFromHtml(Document doc, String selector, String attr) {
         return doc.select(selector).stream()
                 .map(element -> element.attr(attr))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<String> resizeImageLinks(List<String> imageLinks) {
         return imageLinks.stream()
                 .map(this::replaceResizeAndQuality)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private String replaceResizeAndQuality(String originalLink) {
