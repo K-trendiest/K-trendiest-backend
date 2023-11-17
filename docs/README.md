@@ -9,4 +9,4 @@
 - [ ] 유튜브
     - [ ] 외부 API 받아오기
 - [ ] 음악
-    - [ ] 외부 API 받아오기
+    - [x] melon 크롤링해서 Ranking 받아오기 (Service)
