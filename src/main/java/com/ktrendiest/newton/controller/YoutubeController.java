@@ -1,12 +1,11 @@
 package com.ktrendiest.newton.controller;
 
-import com.ktrendiest.newton.domain.Youtube;
-import com.ktrendiest.newton.service.YoutubeService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import com.ktrendiest.newton.domain.Youtube;
+import com.ktrendiest.newton.service.YoutubeService;
 
 @RestController
 public class YoutubeController {
