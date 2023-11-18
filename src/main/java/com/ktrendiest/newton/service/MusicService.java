@@ -3,16 +3,23 @@ package com.ktrendiest.newton.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ktrendiest.newton.constant.DisplayConstant;
+import com.ktrendiest.newton.constant.UrlConstant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import com.ktrendiest.newton.domain.Music;
 
+import static com.ktrendiest.newton.constant.DisplayConstant.QUALITY_SETTING_NUMBER;
+import static com.ktrendiest.newton.constant.DisplayConstant.RESIZE_SETTING_NUMBER;
+import static com.ktrendiest.newton.constant.DisplayConstant.TOTAL_ITEMS_NUMBER;
+
 @Service
 public class MusicService {
     public List<Music> getMusicInfos(){
-        String url = "https://www.melon.com/chart/index.htm";
+        String url = UrlConstant.MUSIC_BASE_URL;
         Document document = getDocument(url);
 
         List<String> titles = extractTextFromHtml(document, ".wrap_song_info .rank01 span a");
@@ -58,14 +65,14 @@ public class MusicService {
     }
 
     private String replaceResizeAndQuality(String originalLink) {
-        return originalLink.replaceAll("resize/120/quality/80", "resize/300/quality/100");
+        return originalLink.replaceAll("resize/120/quality/80", "resize" + RESIZE_SETTING_NUMBER + "quality" + QUALITY_SETTING_NUMBER);
     }
 
     private List<String> getInfoLinksOfSongIds(List<String> songIds) {
         List<String> infoLinks = new ArrayList<>();
-        String baseUrl = "https://www.melon.com/song/detail.htm?songId=";
+        String baseUrl = UrlConstant.SONG_ID_URL;
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < TOTAL_ITEMS_NUMBER; i++) {
             infoLinks.add(baseUrl + songIds.get(i));
         }
         return infoLinks;
@@ -74,7 +81,7 @@ public class MusicService {
     private List<Music> createMusicList(List<String> titles, List<String> artistNames, List<String> imageLinks, List<String> infoLinks) {
         List<Music> musics = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < TOTAL_ITEMS_NUMBER; i++) {
             musics.add(Music.builder()
                     .rank(Integer.toString(i + 1))
                     .title(titles.get(i))

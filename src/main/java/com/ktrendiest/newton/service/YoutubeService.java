@@ -3,6 +3,8 @@ package com.ktrendiest.newton.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ktrendiest.newton.constant.UrlConstant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,10 +13,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ktrendiest.newton.domain.Youtube;
 
+import static com.ktrendiest.newton.constant.DisplayConstant.TOTAL_ITEMS_NUMBER;
+
 @Service
 public class YoutubeService {
-    private static final String YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/videos";
-    private static final String VIDEO_BASE_URL = "https://www.youtube.com/watch?v=";
     private final String youtubeKey;
 
     YoutubeService(@Value("${youtube-key}") String youtubeKey) {
@@ -29,10 +31,10 @@ public class YoutubeService {
     }
 
     private String getApiData() {
-        return UriComponentsBuilder.fromHttpUrl(YOUTUBE_API_URL)
+        return UriComponentsBuilder.fromHttpUrl(UrlConstant.YOUTUBE_API_URL)
                 .queryParam("part", "snippet")
                 .queryParam("chart", "mostPopular")
-                .queryParam("maxResults", 10)
+                .queryParam("maxResults", TOTAL_ITEMS_NUMBER)
                 .queryParam("regionCode", "kr")
                 .queryParam("key", youtubeKey)
                 .toUriString();
@@ -97,7 +99,7 @@ public class YoutubeService {
     }
 
     private String extractInfoLink(JsonNode video) {
-        return VIDEO_BASE_URL + video.path("id")
+        return UrlConstant.VIDEO_BASE_URL + video.path("id")
                 .asText();
     }
 }

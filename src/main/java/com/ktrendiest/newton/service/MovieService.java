@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ktrendiest.newton.constant.UrlConstant;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,6 +17,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.ktrendiest.newton.domain.Movie;
+
+import static com.ktrendiest.newton.constant.DisplayConstant.TOTAL_ITEMS_NUMBER;
 
 @Service
 public class MovieService {
@@ -48,14 +52,14 @@ public class MovieService {
 
     private void fetchDataFromKofic() {
         String targetDate = getTargetDate();
-        String baseUrl = "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
+        String baseUrl = UrlConstant.KOFIC_BASE_URL;
         String koficUrl = getKoficDynamicUrl(baseUrl, targetDate);
         String koficData = getKoficResponseBody(koficUrl);
         addRankAndName(koficData);
     }
 
     private void fetchDataFromKmdb() {
-        String baseUrl = "http://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2";
+        String baseUrl = UrlConstant.KMDB_BASE_URL;
 
         for (int i = 0; i < 10; i++) {
             String dynamicUrl = getKmdbDynamicUrl(baseUrl, i);
@@ -156,7 +160,7 @@ public class MovieService {
     private void createMovies() {
         List<Movie> movies = new ArrayList<>();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < TOTAL_ITEMS_NUMBER; i++) {
             movies.add(Movie.builder()
                     .rank(ranks.get(i))
                     .title(titles.get(i))
