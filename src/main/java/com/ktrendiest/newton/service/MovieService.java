@@ -1,24 +1,22 @@
 package com.ktrendiest.newton.service;
 
+import static com.ktrendiest.newton.constant.DisplayConstant.TOTAL_ITEMS_NUMBER;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.ktrendiest.newton.constant.UrlConstant;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.util.UriComponentsBuilder;
 import com.ktrendiest.newton.domain.Movie;
-
-import static com.ktrendiest.newton.constant.DisplayConstant.TOTAL_ITEMS_NUMBER;
+import com.ktrendiest.newton.constant.UrlConstant;
 
 @Service
 public class MovieService {
@@ -42,7 +40,7 @@ public class MovieService {
     }
 
     @PostConstruct
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     private void initialize() {
         fetchDataFromKofic();
         fetchDataFromKmdb();
