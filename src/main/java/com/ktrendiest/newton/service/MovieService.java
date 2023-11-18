@@ -5,62 +5,56 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ktrendiest.newton.domain.Movie;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.ktrendiest.newton.domain.Movie;
 
 @Service
 public class MovieService {
-    @Value("${kofic-key}")
-    private String koficKey;
-    @Value("${kmdb-key}")
-    private String kmdbKey;
-    private final List<String> titles;
-    private final List<String> ranks;
-    private final List<String> openDates;
-    private final List<String> imageLinks;
-    private final List<String> kmdbUrls;
-    private final WebClient webClient;
+    private final String koficKey;
+    private final String kmdbKey;
+    private final List<String> titles = new ArrayList<>();
+    private final List<String> ranks = new ArrayList<>();
+    private final List<String> openDates = new ArrayList<>();
+    private final List<String> imageLinks = new ArrayList<>();
+    private final List<String> infoLinks = new ArrayList<>();
+    private List<Movie> movieInfos;
 
-    public MovieService() {
-        titles = new ArrayList<>();
-        ranks = new ArrayList<>();
-        openDates = new ArrayList<>();
-        imageLinks = new ArrayList<>();
-        kmdbUrls = new ArrayList<>();
-        webClient = WebClient.create();
+    public MovieService(@Value("${kofic-key}") String koficKey,
+                        @Value("${kmdb-key}") String kmdbKey) {
+        this.koficKey = koficKey;
+        this.kmdbKey = kmdbKey;
     }
 
+    @Cacheable("movieCache")
     public List<Movie> getMovieInfos() {
-        String jsonData1 = getDataFromKoficApi();
-        addRankAndName(jsonData1);
-        fetchDataFromKmdbApi();
-        return createMovies();
+        return movieInfos;
     }
 
-    private List<Movie> createMovies() {
-        List<Movie> movies = new ArrayList<>();
-
-        for (int i = 0; i < 10; i++) {
-            movies.add(new Movie(ranks.get(i), titles.get(i), imageLinks.get(i), kmdbUrls.get(i)));
-        }
-
-        return movies;
+    @PostConstruct
+    @Scheduled(cron = "0 0 0 * * *")
+    private void initialize() {
+        fetchDataFromKofic();
+        fetchDataFromKmdb();
+        createMovies();
     }
 
-    private String getDataFromKoficApi() {
+    private void fetchDataFromKofic() {
         String targetDate = getTargetDate();
         String baseUrl = "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
-        String dynamicUrl = getKoficDynamicUrl(baseUrl, targetDate);
-
-        return getKoficResponseBody(dynamicUrl);
+        String koficUrl = getKoficDynamicUrl(baseUrl, targetDate);
+        String koficData = getKoficResponseBody(koficUrl);
+        addRankAndName(koficData);
     }
 
-    private void fetchDataFromKmdbApi() {
+    private void fetchDataFromKmdb() {
         String baseUrl = "http://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2";
 
         for (int i = 0; i < 10; i++) {
@@ -75,6 +69,32 @@ public class MovieService {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    private String getTargetDate() {
+        LocalDate currentDateTime = LocalDate.now();
+        LocalDate yesterdayDateTime = currentDateTime.minusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        return formatter.format(yesterdayDateTime);
+    }
+
+    private String getKoficDynamicUrl(String baseUrl, String targetDate) {
+        return UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .queryParam("key", koficKey)
+                .queryParam("targetDt", targetDate)
+                .build()
+                .toUriString();
+    }
+
+    private String getKoficResponseBody(String dynamicUrl) {
+        return  WebClient.create()
+                .get()
+                .uri(dynamicUrl)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 
     private void addRankAndName(String jsonData) {
@@ -97,30 +117,6 @@ public class MovieService {
         }
     }
 
-    private String getTargetDate() {
-        LocalDate currentDateTime = LocalDate.now();
-        LocalDate yesterdayDateTime = currentDateTime.minusDays(1);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-
-        return formatter.format(yesterdayDateTime);
-    }
-
-    private String getKoficDynamicUrl(String baseUrl, String targetDate) {
-        return UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .queryParam("key", koficKey)
-                .queryParam("targetDt", targetDate)
-                .build()
-                .toUriString();
-    }
-
-    private String getKoficResponseBody(String dynamicUrl) {
-        return webClient.get()
-                .uri(dynamicUrl)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
-
     private String getKmdbDynamicUrl(String baseUrl, int num) {
         return UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("ServiceKey", kmdbKey)
@@ -131,7 +127,8 @@ public class MovieService {
     }
 
     private String getKmdbResponseBody(String dynamicUrl) {
-        return webClient.get()
+        return WebClient.create()
+                .get()
                 .uri(dynamicUrl)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -153,6 +150,15 @@ public class MovieService {
                 .path("kmdbUrl");
 
         imageLinks.add(postersNode.asText().split("\\|")[0]);
-        kmdbUrls.add(kmdbUrlNode.asText());
+        infoLinks.add(kmdbUrlNode.asText());
+    }
+
+    private void createMovies() {
+        List<Movie> movies = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            movies.add(new Movie(ranks.get(i), titles.get(i), imageLinks.get(i), infoLinks.get(i)));
+        }
+        movieInfos = movies;
     }
 }
