@@ -37,7 +37,6 @@ public class MovieService {
         this.kmdbKey = kmdbKey;
     }
 
-    @Cacheable("movieCache")
     public List<Movie> getMovieInfos() {
         return movieInfos;
     }
