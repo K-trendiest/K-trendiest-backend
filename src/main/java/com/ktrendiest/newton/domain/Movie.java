@@ -1,10 +1,10 @@
 package com.ktrendiest.newton.domain;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
-@AllArgsConstructor
 public class Movie {
     private final String rank;
     private final String title;

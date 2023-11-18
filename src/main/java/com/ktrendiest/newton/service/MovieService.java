@@ -157,7 +157,12 @@ public class MovieService {
         List<Movie> movies = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            movies.add(new Movie(ranks.get(i), titles.get(i), imageLinks.get(i), infoLinks.get(i)));
+            movies.add(Movie.builder()
+                    .rank(ranks.get(i))
+                    .title(titles.get(i))
+                    .imageLink(imageLinks.get(i))
+                    .infoLink(infoLinks.get(i))
+                    .build());
         }
         movieInfos = movies;
     }
