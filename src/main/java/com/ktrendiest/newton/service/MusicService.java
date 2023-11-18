@@ -1,24 +1,32 @@
 package com.ktrendiest.newton.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.ktrendiest.newton.constant.DisplayConstant;
-import com.ktrendiest.newton.constant.UrlConstant;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Document;
-import org.springframework.stereotype.Service;
-import com.ktrendiest.newton.domain.Music;
-
 import static com.ktrendiest.newton.constant.DisplayConstant.QUALITY_SETTING_NUMBER;
 import static com.ktrendiest.newton.constant.DisplayConstant.RESIZE_SETTING_NUMBER;
 import static com.ktrendiest.newton.constant.DisplayConstant.TOTAL_ITEMS_NUMBER;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import jakarta.annotation.PostConstruct;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Document;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import com.ktrendiest.newton.domain.Music;
+import com.ktrendiest.newton.constant.UrlConstant;
+
 @Service
 public class MusicService {
-    public List<Music> getMusicInfos(){
+    private List<Music> musicInfos;
+
+    public List<Music> getMusicInfos() {
+        return musicInfos;
+    }
+
+    @PostConstruct
+    @Scheduled(cron = "0 5 * * * *")
+    public void fetchDataFromYoutube() {
         String url = UrlConstant.MUSIC_BASE_URL;
         Document document = getDocument(url);
 
@@ -29,11 +37,7 @@ public class MusicService {
         List<String> songIds = extractAttrFromHtml(document, ".d_song_list tbody tr","data-song-no");
         List<String> infoLinks = getInfoLinksOfSongIds(songIds);
 
-        for (String artistName : artistNames) {
-            System.out.println(artistName);
-        }
-
-        return createMusicList(titles, artistNames, resizeImageLinks, infoLinks);
+        createMusicList(titles, artistNames, resizeImageLinks, infoLinks);
     }
 
     private Document getDocument(String url) {
@@ -78,7 +82,7 @@ public class MusicService {
         return infoLinks;
     }
 
-    private List<Music> createMusicList(List<String> titles, List<String> artistNames, List<String> imageLinks, List<String> infoLinks) {
+    private void createMusicList(List<String> titles, List<String> artistNames, List<String> imageLinks, List<String> infoLinks) {
         List<Music> musics = new ArrayList<>();
 
         for (int i = 0; i < TOTAL_ITEMS_NUMBER; i++) {
@@ -90,6 +94,6 @@ public class MusicService {
                     .infoLink(infoLinks.get(i))
                     .build());
         }
-        return musics;
+        musicInfos = musics;
     }
 }
