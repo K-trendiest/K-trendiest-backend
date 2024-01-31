@@ -100,7 +100,7 @@ public class YoutubeService {
     private String extractImageLink(JsonNode video) {
         return video.path("snippet")
                 .path("thumbnails")
-                .path("standard")
+                .path("maxres")
                 .path("url")
                 .asText();
     }
