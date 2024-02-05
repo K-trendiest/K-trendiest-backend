@@ -25,7 +25,7 @@ public class MusicService {
     }
 
     @PostConstruct
-    @Scheduled(cron = "0 5 * * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     public void fetchDataFromYoutube() {
         String url = UrlConstant.MUSIC_BASE_URL;
         Document document = getDocument(url);

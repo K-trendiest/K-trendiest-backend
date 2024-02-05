@@ -30,7 +30,7 @@ public class YoutubeService {
     }
 
     @PostConstruct
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 1 * * *")
     private void fetchDataFromYoutube() {
         String youtubeUrl = getApiData();
         String youtubeData = getYoutubeResponseBody(youtubeUrl);
