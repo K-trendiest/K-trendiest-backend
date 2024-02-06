@@ -35,7 +35,7 @@ public class MovieService {
     }
 
     @PostConstruct
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0 5 1 * * *")
     private void initialize() {
         List<String> ranks = new ArrayList<>();
         List<String> titles = new ArrayList<>();
